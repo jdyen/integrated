@@ -347,6 +347,6 @@ size_mod_mc_nodens1 <- estimate_mpm(pop_samp = mc_size1,
                                     growdat = mc_oti_new,
                                     mat_type = "stage",
                                     dens_depend = "none",
-                                    greta_settings = list(nsamples = 1000,
-                                                          nwarmup = 1000,
+                                    greta_settings = list(nsamples = 10,
+                                                          nwarmup = 10,
                                                           inits = "random"))
