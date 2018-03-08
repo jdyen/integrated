@@ -15,10 +15,9 @@ source("./code/param_modules.R")
 source("./code/sim_dynamics.R")
 source("./code/otolith_calc.R")
 
-# sim data with same strucutre as mc_oti_new and mc_size1
-### TO ADD
-pop_data <- mc_size1
-growth_data <- mc_oti_new
+# load simulated population and growth data
+pop_data <- get(load("./data/pop_data.R"))
+growth_data <- read.csv("./data/growth_data.csv")
 
 # fit model with correct density dependence form
 mod <- estimate_mpm(pop_samp = pop_data,
