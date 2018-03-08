@@ -19,7 +19,7 @@ estimate_mpm <- function(pop_samp,
   growdat_trans <- otolith_prior_fun(growdat, nstage)
   
   # define greta parameters
-  mat_params <- get(mat_type)(nstage = nstage, nsite = nsite, growdat = growdat)
+  mat_params <- get(mat_type)(nstage = nstage, nsite = nsite)
   params <- mat_params$params
   demo_sd <- mat_params$demo_sd
   

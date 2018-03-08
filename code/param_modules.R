@@ -1,7 +1,7 @@
 # matrix model modules
 
 # stage based
-stage <- function(nstage, nsite, growdat) {
+stage <- function(nstage, nsite) {
   
   # hyperpriors for sds
   demo_sd <- lognormal(mean = 0.0,
@@ -43,10 +43,7 @@ stage <- function(nstage, nsite, growdat) {
 }
 
 # age based
-age <- function(nstage, nsite, growdat) {
-  
-  if (!is.null(growdat))
-    warning("growdat must be suppllied", call. = FALSE)
+age <- function(nstage, nsite) {
   
   # hyperpriors for sds
   demo_sd <- lognormal(mean = 0.0, sd = 3.0, dim = (nstage + 1))
@@ -82,46 +79,24 @@ age <- function(nstage, nsite, growdat) {
 }
 
 # unstructured
-unstructured <- function(nstage, nsite, growdat) {
+unstructured <- function(nstage, nsite) {
   
   # hyperpriors for sds
   demo_sd <- lognormal(mean = 0.0, sd = 3.0, dim = (nstage + 1))
   
   # fecundity and survival priors
-  params_fec <- vector("list", length = (nstage * nstage))
-  params_surv <- vector("list", length = (nstage * nstage))
-  params_disp <- vector("list", length = (nstage * nstage))
-  params_surv[[1]] <- ilogit(normal(mean = 0.0, sd = demo_sd[1], dim = nsite))
-  params_disp[[1]] <- uniform(min = 0.0, max = 0.0001, dim = nsite)
-  params_fec[[1]] <- uniform(min = 0.0, max = 0.0001, dim = nsite)
+  params[[1]] <- ilogit(normal(mean = 0.0, sd = demo_sd[1], dim = nstage))
   for (i in 2:nstage) {
-    params_surv[[i]] <- uniform(min = 0.0, max = 0.0001, dim = nsite)
-    params_fec[[i]] <- lognormal(mean = 0.0,
-                                 sd = demo_sd[((i - 1) %% nstage) + 1],
-                                 dim = nsite)
-    params_disp[[i]] <- lognormal(mean = 0.0,
-                                  sd = demo_sd[nstage + 1],
-                                  dim = nsite)
-  } 
-  
-  for (i in (nstage + 1):length(params_surv)) {
-    params_fec[[i]] <- uniform(min = 0.0, max = 0.0001, dim = nsite)
-    params_surv[[i]] <- ilogit(normal(mean = 0.0,
-                                      sd = demo_sd[((i - 1) %% nstage) + 1],
-                                      dim = nsite))
-    if (i %in% seq((nstage + 2), length(params_surv), by = (nstage + 1))) {
-      params_disp[[i]] <- lognormal(mean = 0.0,
-                                    sd = demo_sd[nstage + 1],
-                                    dim = nsite)
-    } else { 
-      params_disp[[i]] <- uniform(min = 0.0, max = 0.0001, dim = nsite)
-    }
+    params[[i]] <- lognormal(mean = 0.0, sd = demo_sd[2], dim = nstage)
+  }
+  for (i in (nstage + 1):length(params)) {
+    params[[i]] <- ilogit(normal(mean = 0.0,
+                                 sd = demo_sd[(floor((i - 1) / nstage) + 2)],
+                                 dim = nstage))
   }
   
   # collate outputs
-  out <- list(params_surv = params_surv,
-              params_fec = params_fec,
-              params_disp = params_disp,
+  out <- list(params = params,
               demo_sd = demo_sd)
   
   # return outputs
