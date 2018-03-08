@@ -42,54 +42,6 @@ stage <- function(nstage, nsite, growdat) {
   
 }
 
-stage2 <- function(nstage, nsite, growdat) {
-  
-  # work through growth data
-  if (is.null(growdat))
-    stop("growdat must be supplied", call. = FALSE)
-  transition_mat <- otolith_prior_fun(oti_data = growdat, nstage = nstage)
-  transition_mat <- ifelse(transition_mat == 0, 1e-5, transition_mat)
-  transition_mat <- ifelse(transition_mat == 1, (1 - 1e-5), transition_mat)
-  transition_mat <- sweep(transition_mat, 2, apply(transition_mat, 2, sum), "/")
-  transition_mat <- qlogis(transition_mat)
-  
-  # hyperpriors for sds
-  demo_sd <- lognormal(mean = 0.0, sd = 3.0, dim = 4)
-  
-  stage_surv <- normal(mean = 0.0, sd = demo_sd[4], dim = nstage)
-  
-  # fecundity and survival priors
-  params <- vector("list", length = (nstage * nstage))
-  params[[1]] <- ilogit(normal(mean = (transition_mat[1, 1] * stage_surv[1]),
-                               sd = demo_sd[3], dim = nsite))
-  for (i in 2:(nstage - 1)) {
-    params[[i]] <- uniform(min = 0.0, max = 0.0001, dim = nsite)
-  }
-  params[[nstage]] <- lognormal(mean = 0.0, sd = demo_sd[1], dim = nsite)
-  for (i in 2:nstage) {
-    for (j in seq_len(nstage)) {
-      if (j == (i - 1)) {
-        params[[((i - 1) * nstage) + j]] <- ilogit(normal(mean = (transition_mat[i, j] * stage_surv[j]),
-                                                          sd = demo_sd[2], dim = nsite))
-      } else {
-        if (j == i) {
-          params[[((i - 1) * nstage) + j]] <- ilogit(normal(mean = (transition_mat[i, j] * stage_surv[j]),
-                                                            sd = demo_sd[3], dim = nsite))
-        } else {
-          params[[((i - 1) * nstage) + j]] <- uniform(min = 0.0, max = 0.0001, dim = nsite)
-        }
-      }
-    }
-  }
-  
-  # collate outputs
-  out <- list(params = params, demo_sd = demo_sd)
-  
-  # return outputs
-  out
-  
-}
-
 # age based
 age <- function(nstage, nsite, growdat) {
   
