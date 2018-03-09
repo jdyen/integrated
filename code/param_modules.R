@@ -85,6 +85,7 @@ unstructured <- function(nstage, nsite) {
   demo_sd <- lognormal(mean = 0.0, sd = 3.0, dim = (nstage + 1))
   
   # fecundity and survival priors
+  params <- vector("list", length = (nstage * nstage))
   params[[1]] <- ilogit(normal(mean = 0.0, sd = demo_sd[1], dim = nstage))
   for (i in 2:nstage) {
     params[[i]] <- lognormal(mean = 0.0, sd = demo_sd[2], dim = nstage)
