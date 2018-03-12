@@ -215,23 +215,28 @@ plot_summed_abund <- function(mod) {
 
 plot_matrix <- function(mod) {
   
+  old_mar <- par()$mar
+  par(mar = c(5.1, 5.6, 2.1, 1.1))
+  
   mod_summary <- summarise_mpm(mod)
   image(t(mod_summary$mat_est[, , 1]),
-        x = seq(0, 54000, length = ncol(mod_summary$mat_est[, , 1])),
-        y = seq(0, 54000, length = ncol(mod_summary$mat_est[, , 1])),
+        x = seq(0, 1, length = ncol(mod_summary$mat_est[, , 1])),
+        y = seq(0, 1, length = ncol(mod_summary$mat_est[, , 1])),
         col = viridis::inferno(256)[c(1, 51:256)],
         breaks = c(seq(0, 1, length = 151), seq(1, 7, length = 57)),
         xlab = "",
         ylab = "",
         las = 1)
-  mtext("Size (g) at time t - 1", side = 1, line = 2.5, cex = 1)
-  mtext("Size (g) at time t", side = 2, line = 3.8, cex = 1)
-  
+  mtext("Relative size (g) at time t - 1", side = 1, line = 2.5, cex = 1)
+  mtext("Relative size (g) at time t", side = 2, line = 3.8, cex = 1)
+
+  par(mar = old_mar)
+    
 }
 
-plot_projections <- function(mod, niter = 25, nsim = 30) {
+plot_projections <- function(mod, niter = 25, nsim = 30, ylim_set = c(0, 10000)) {
 
-  out <- project_fitted_mpm2(mod, niter = niter)[[1]]
+  out <- project_fitted_mpm(mod, niter = niter)[[1]]
   x_vals <- c(1999:(1998 + ncol(out)))
 
   mod_summary <- summarise_mpm(mod)
@@ -248,7 +253,7 @@ plot_projections <- function(mod, niter = 25, nsim = 30) {
   plot(plot_mean ~ x_vals,
        type = "n", bty = "l", las = 1,
        xaxt = "n", yaxt = "n",
-       ylim = c(0, 5000),
+       ylim = ylim_set,
        xlim = range(x_vals),
        xlab = "", ylab = "")
   
@@ -260,7 +265,7 @@ plot_projections <- function(mod, niter = 25, nsim = 30) {
   
   for (i in seq_len(nsim)) {
     
-    out <- project_fitted_mpm2(mod, niter = niter, dd_param = mod_summary$dens_param)[[1]]
+    out <- project_fitted_mpm(mod, niter = niter)[[1]]
     plot_mean <- apply(out, 2, sum)
     lines(plot_mean[(length(plot_real)):length(plot_mean)] ~ x_vals[(length(plot_real)):length(plot_mean)],
           lwd = 1.2, col = col_pal_main[i])
