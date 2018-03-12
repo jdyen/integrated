@@ -33,7 +33,7 @@ estimate_mpm <- function(pop_samp,
   mpm_mat <- vector("list", length = nsite)
   
   # setup a parameter for the density dependence functions (ignored if dens_depend = "none")
-  dens_param <- lognormal(mean = 0.0, sd = 1.0, dim = 1)
+  dens_param <- uniform(min = 0.8, max = 1.2, dim = 1)
   
   # loop over each sampled pop and define full dynamic model
   for (j in seq_len(nsite)) {

@@ -25,10 +25,15 @@ mod_stage <- estimate_mpm(pop_samp = pop_data,
                           site = rep(1, length(pop_data)),
                           growdat = growth_data,
                           mat_type = "stage",
-                          dens_depend = "none",
-                          greta_settings = list(nsamples = 1000,
-                                                nwarmup = 1000,
+                          dens_depend = "bh",
+                          greta_settings = list(nsamples = 100,
+                                                nwarmup = 100,
                                                 inits = "random"))
+
+# summarise fitted model
+plot_summed_abund(mod_stage)
+plot_matrix(mod_stage)
+plot_projections(mod_stage)
 
 # fit a model with age-structured transitions
 mod_age <- estimate_mpm(pop_samp = pop_data,

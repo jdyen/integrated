@@ -170,3 +170,114 @@ plot_fitted_mpm <- function(mod)  {
   par(mar = old_par$mar, mfrow = old_par$mfrow)
   
 }
+
+plot_summed_abund <- function(mod) {
+  
+  # extract necessary plot values
+  mod_summary <- summarise_mpm(mod)
+  fitted_mean <- mod_summary$fitted_mean[[1]]
+  fitted_upper <- mod_summary$fitted_upper[[1]]
+  fitted_lower <- mod_summary$fitted_lower[[1]]
+  pop_samp <- mod$pop_samp[[1]]
+  
+  # set colours
+  col_pal_main <- viridis::inferno(256, alpha = 1)[c(20, seq(70, 200,
+                                                             length = nrow(pop_samp)))]
+  col_pal_sub <- viridis::inferno(256, alpha = 0.4)[c(20, seq(70, 200,
+                                                              length = nrow(pop_samp)))]
+  
+  x_vals <- c(1999:2017)
+  
+  plot_mean <- apply(fitted_mean, 2, sum)
+  plot_lower <- apply(fitted_lower, 2, sum)
+  plot_upper <- apply(fitted_upper, 2, sum)
+  plot_real <- apply(pop_samp, 2, sum)
+  
+  plot(pop_samp[1, ] ~ x_vals,
+       type = "n", bty = "l", las = 1,
+       xaxt = "n", yaxt = "n",
+       ylim = range(c(plot_mean, plot_lower, plot_upper, plot_real)),
+       xlim = range(x_vals),
+       xlab = "", ylab = "")
+  
+  polygon(c(x_vals, rev(x_vals)),
+          c(plot_upper, rev(plot_lower)),
+          border = NA, col = col_pal_sub[1])
+  lines(plot_real ~ x_vals,
+        lwd = 1.2, col = col_pal_main[1])
+  
+  axis(1, at = x_vals[seq(1, length(x_vals), by = 2)], las = 1)
+  mtext("Year", side = 1, adj = 0.5, line = 2.5)
+  axis(2, las = 1)
+  mtext("Abundance", side = 2, adj = 0.5, line = 3.5)
+  
+}
+
+plot_matrix <- function(mod) {
+  
+  mod_summary <- summarise_mpm(mod)
+  image(t(mod_summary$mat_est[, , 1]),
+        x = seq(0, 54000, length = ncol(mod_summary$mat_est[, , 1])),
+        y = seq(0, 54000, length = ncol(mod_summary$mat_est[, , 1])),
+        col = viridis::inferno(256)[c(1, 51:256)],
+        breaks = c(seq(0, 1, length = 151), seq(1, 7, length = 57)),
+        xlab = "",
+        ylab = "",
+        las = 1)
+  mtext("Size (g) at time t - 1", side = 1, line = 2.5, cex = 1)
+  mtext("Size (g) at time t", side = 2, line = 3.8, cex = 1)
+  
+}
+
+plot_projections <- function(mod, niter = 25, nsim = 30) {
+
+  out <- project_fitted_mpm2(mod, niter = niter)[[1]]
+  x_vals <- c(1999:(1998 + ncol(out)))
+
+  mod_summary <- summarise_mpm(mod)
+  fitted_mean <- mod_summary$fitted_mean[[1]]
+  fitted_upper <- mod_summary$fitted_upper[[1]]
+  fitted_lower <- mod_summary$fitted_lower[[1]]
+  pop_samp <- mod$pop_samp[[1]]
+  
+  plot_mean <- apply(out, 2, sum)
+  plot_real <- apply(pop_samp, 2, sum)
+  plot_lower <- apply(fitted_lower, 2, sum)
+  plot_upper <- apply(fitted_upper, 2, sum)
+  
+  plot(plot_mean ~ x_vals,
+       type = "n", bty = "l", las = 1,
+       xaxt = "n", yaxt = "n",
+       ylim = c(0, 5000),
+       xlim = range(x_vals),
+       xlab = "", ylab = "")
+  
+  # set colours
+  col_pal_main <- viridis::inferno(256, alpha = 1)[c(20, seq(70, 200,
+                                                             length = nsim))]
+  col_pal_sub <- viridis::inferno(256, alpha = 0.4)[c(20, seq(70, 200,
+                                                              length = nsim))]
+  
+  for (i in seq_len(nsim)) {
+    
+    out <- project_fitted_mpm2(mod, niter = niter, dd_param = mod_summary$dens_param)[[1]]
+    plot_mean <- apply(out, 2, sum)
+    lines(plot_mean[(length(plot_real)):length(plot_mean)] ~ x_vals[(length(plot_real)):length(plot_mean)],
+          lwd = 1.2, col = col_pal_main[i])
+    
+  }
+  
+  polygon(c(x_vals[seq_along(plot_upper)], rev(x_vals[seq_along(plot_upper)])),
+          c(plot_upper, rev(plot_lower)),
+          border = NA, col = col_pal_sub[1])
+  lines(plot_mean ~ x_vals,
+        lwd = 1.2, col = col_pal_main[1])
+  lines(plot_real ~ x_vals[seq_along(plot_real)],
+        lwd = 1.2, col = col_pal_main[1])
+  
+  axis(1, at = x_vals[seq(1, length(x_vals), by = 2)], las = 1)
+  mtext("Year", side = 1, adj = 0.5, line = 2.5)
+  axis(2, las = 1)
+  mtext("Abundance", side = 2, adj = 0.5, line = 3.5)
+
+}
