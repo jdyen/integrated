@@ -25,7 +25,15 @@ Integrated model to estimate demographic vital rates from data on individual gro
 
 Maintainer: Jian Yen (jdl.yen@gmail.com)
 
-Updated: 19 January 2018
+Updated: 12 March 2018
 
 ## About
-This project uses integrated Bayesian models to estimate demographic vital rates from multiple data sources.
+This project uses integrated Bayesian models to estimate demographic vital rates from multiple data sources. Models are fitted in R using the [greta R package](https://github.com/greta-dev). The current models use a stage-, age-, or un-structured population matrix model with eight possible classes in the example given here.
+
+These models use two types of data: population abundance surveys with individual size data and individual growth trajectories. Simulated data are provided here, intended to match broadly the characteristics of a large-bodied, predatory freshwater fish species.
+
+## Usage
+The main.R script contains the full model run, calling on helper functions split into several different scripts. The primary helper function is estimate_mpm.R in the mpm_est.R script. Model runs with 1000 iterations take up to an hour on a MacBook Air.
+
+A helper script, install_packages.R, is called within main.R and will install all required packages from GitHub. Issues with installing the greta package can be resolved by following instructions at https://github.com/greta-dev.
+
