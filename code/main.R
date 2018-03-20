@@ -16,7 +16,7 @@ source("./code/sim_dynamics.R")
 source("./code/otolith_calc.R")
 
 # load simulated population and growth data
-pop_data <- get(load("./data/pop_data.R"))
+pop_data <- get(load("./data/pop_data.RData"))
 growth_data <- read.csv("./data/growth_data.csv")
 
 # fit integrated model with stage-structured transitions and
